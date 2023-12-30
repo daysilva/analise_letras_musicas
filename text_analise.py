@@ -29,6 +29,7 @@ def get_polarity():
             data["titulo"].append(df_letras["titulo"][l]) # guardar apenas o titulo na coluna do dataframe
                 
             analise = TextBlob(df_letras["letra"][l])
+
             polaridade = analise.sentiment.polarity
             data['polarity'].append(polaridade) # guardar a polaridade
             data["estilo"].append(df_letras["estilo"][l])
@@ -95,4 +96,100 @@ def df_frequencia_palavra():
     return top5
 
 
+def len_musica():
+    """
+    verificar a quantidade de palavras em uma letra de musica
+    """
+
+    musicas = {
+        "titulo": [],
+        "estilo":[],
+        "tamanho": []
+    } 
+
+    for l in range(0, len(df_letras["titulo"])):
+        titulo = df_letras["titulo"][l]
+        estilo = df_letras["estilo"][l]
+
+        refrao_unico = "" 
+        musicas["titulo"].append(titulo)
+        musicas["estilo"].append(estilo)
+        for refrao in df_letras["letra"][l]:
+           refrao_unico += refrao.replace(" ", "").replace(",", "").replace(".", "").replace(";", "").replace("`", "").replace("'", "")
+           
+        musicas["tamanho"].append(len(refrao_unico))
+    
+    df = pd.DataFrame(musicas)
+
+    return df
+
+
+def tratar_palavras():
+
+    musicas = {
+        "titulo": [],
+        "estilo":[],
+        "letras": []
+    } 
+   
+
+    for l in range(0, len(df_letras["titulo"])):
+        titulo = df_letras["titulo"][l]
+        estilo = df_letras["estilo"][l]
+
+        musicas["titulo"].append(titulo)
+        musicas["estilo"].append(estilo)
+
+        refrao_unico = "" 
+
+        for refrao in df_letras["letra"][l]:
+           refrao_unico += refrao.replace(",", " ").replace(".", " ").replace(";", " " ).replace("!", " " ).replace("(", " " ).replace(")", " " )
+   
+        musicas["letras"].append(refrao_unico)
+
+    return musicas
+
+
+
+def count_palavras():
+    """
+        contar a quantidadede palavras distintas que uma letrade musica pode ter
+    """
+
+    total_palavras = {
+        "palavra": [],
+        "quant": [],
+        "titulo": [],
+        "estilo": []
+    }
+
+    dict_palavra = tratar_palavras()
+
+    for p in range(0, len(dict_palavra["letras"])):
+        palavras = dict_palavra["letras"][p].split()
+
+        # contar a ocorrência de cada palavra
+        count = Counter(palavras)
+
+        key_palavras = count.keys()
+      
+        for k in key_palavras:
+            # apenas palavras com mais de 3 letras
+            if len(k) > 3:
+                total_palavras["palavra"].append(k)
+                total_palavras["quant"].append(count[k])
+                total_palavras["titulo"].append(dict_palavra["titulo"][p])
+                total_palavras["estilo"].append(dict_palavra["estilo"][p])
+
+
+    df = pd.DataFrame(total_palavras)
+    df.to_csv('quant_palavras.csv', index=False)
+
+
 # print(df_frequencia_palavra())
+# get_polarity()
+# print(len_musica())
+        
+# print(count_palavras())
+        
+# count_palavras()
