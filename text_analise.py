@@ -193,3 +193,16 @@ def count_palavras():
 # print(count_palavras())
         
 # count_palavras()
+
+
+# df_quant_palavras = pd.read_csv('./quant_palavras.csv')
+
+# count_pal = df_quant_palavras.pivot_table(
+#     index="palavra",
+#     values="quant",
+#     aggfunc="sum")
+
+# total_quant_order = count_pal.sort_values(by="quant", ascending=False)
+# top10_palavras = total_quant_order.head(15)
+
+# print(top10_palavras)

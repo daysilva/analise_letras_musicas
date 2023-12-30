@@ -4,6 +4,7 @@ from dash import Dash, html, dcc, dash_table, callback, Input, Output
 import plotly.express as px
 
 
+# DATAFRAMES UTILIZADOS
 df = get_polarity()
 
 df_freq = df_frequencia_palavra()
@@ -11,6 +12,20 @@ df_freq = df_frequencia_palavra()
 df_len_musica = len_musica()
 
 
+
+df_quant_palavras = pd.read_csv('./quant_palavras.csv')
+
+count_pal = df_quant_palavras.pivot_table(
+    index="palavra",
+    values="quant",
+    aggfunc="sum")
+
+total_quant_order = count_pal.sort_values(by="quant", ascending=False)
+top10_palavras = total_quant_order.head(10)
+
+
+
+# GRAFICOS
 
 # montar um grafico de radar
 fig_radar = px.line_polar(df_freq, r='quanti', theta='palavra', line_close=True)
@@ -37,11 +52,21 @@ len_musica_estilo = px.scatter(df_len_musica,
                     color='titulo', title='Tamanho das letras e seus estilos')
 
 
+hist_quant_pal = px.bar(
+    top10_palavras,
+    x=top10_palavras.index,  
+    y='quant',              
+    labels={'x': 'Palavra', 'quant': 'Quantidade'},
+    title='Top 10'
+)
+
+
 
 # o dataset com a polaridade das musicas é muito grande
 # então vamos divi-lo em duas partes
 parte1 = df.iloc[:len(df)//2, :]
 parte2 = df.iloc[len(df)//2:, :]
+
 
 
 app = Dash(__name__)
@@ -50,7 +75,7 @@ app.layout = html.Div([
     html.Div(
         className='my-header',
         children=[
-            html.H1(children='Media de polaridade das frases de pessoas famosas')
+            html.H1(children='RASPAGEM DE DADOS | ANÁLISE DE TEXTOS')
              ]
     ),
     html.P([
@@ -72,7 +97,7 @@ app.layout = html.Div([
                 figure={}
             ),
     html.Hr(),
-        html.H2(children='As 6 palavras mais repetidas'),
+        html.H2(children='As 6 palavras mais repetidas em cada música'),
     dcc.Graph(
         id="grafico-radar",
         figure=fig_radar
@@ -86,6 +111,12 @@ app.layout = html.Div([
      dcc.Graph(
         id="grafico-scater-estilo",
         figure=len_musica_estilo
+    ),
+     html.Hr(),
+    html.H2(children='As 10 palavras mais utilizadas nas letras de musicas'),
+    dcc.Graph(
+        id="grafico-hist-top10",
+        figure=hist_quant_pal
     ),
     ])
 
