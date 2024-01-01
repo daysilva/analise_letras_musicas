@@ -27,6 +27,11 @@ def get_polarity():
         for l in range(0, len(df_letras["titulo"])):
           
             data["titulo"].append(df_letras["titulo"][l]) # guardar apenas o titulo na coluna do dataframe
+
+            # text_analize = df_letras["letra"][l].replace("[", "").replace("]", "")
+            # text_split = text_analize[0: len(text_analize) // 2]
+
+            
                 
             analise = TextBlob(df_letras["letra"][l])
 
