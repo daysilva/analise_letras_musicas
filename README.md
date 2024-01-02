@@ -13,6 +13,7 @@
 ### caso você já tenha o ambiente criado e deseja apenas executar o projeto, execute:
 - linux:
 - source analise_text/bin/activate
+- pip install -r requirements.txt --upgrade
 - python3 main.py
 - Acesse o link em seu navegador para ver os dashboards dessa análise
 
