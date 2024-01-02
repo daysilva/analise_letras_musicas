@@ -16,7 +16,7 @@
 - Acesse o link em seu navegador para ver os dashboards dessa análise
 
 
-## se você não quiser utilizar um ambiente virtual, pode baixar as tudo manualmente: 
+## se você não quiser utilizar um ambiente virtual, pode baixar tudo manualmente: 
 - pip install bs4
 - pip install pandas
 - pip install textblob
