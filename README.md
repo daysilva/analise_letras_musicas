@@ -3,6 +3,7 @@
 ## crie um ambiente virtual e baixe as dependencias
 ### se você não tiver o ambiente criado ainda:
 - linux:
+- sudo apt-get install python3-venv
 - python3 -m venv analise_text
 - source analise_text/bin/activate
 - pip install googletrans==4.0.0-rc1
