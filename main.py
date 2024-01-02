@@ -1,4 +1,4 @@
-from text_analise import get_polarity, df_frequencia_palavra, len_musica
+from text_analise import get_polarity, df_frequencia_palavra, len_musica, df_frequencia_palavra_polari
 import pandas as pd
 from dash import Dash, html, dcc, dash_table, callback, Input, Output
 import plotly.express as px
@@ -22,18 +22,47 @@ total_quant_order = count_pal.sort_values(by="quant", ascending=False)
 top10_palavras = total_quant_order.head(10)
 
 
-# order_polaridade = df.sort_values(by='polarity', ascending=False)
-# top5 = order_polaridade.head(5)
+group_polaridade_estilo = df.pivot_table(
+    index="estilo",
+    values="polarity",
+    aggfunc="sum")
 
-# df_palvras_posi_polari = df_frequencia_palavra(top5)
 
-# print(df_palvras_posi_polari)
+order_polaridade_estilo = group_polaridade_estilo.sort_values(by="polarity", ascending=False)
+top10_polaridade = order_polaridade_estilo.head(5)
+
+
+order_polaridade = df.sort_values(by='polarity', ascending=False)
+top5 = order_polaridade.head(5) # top 5 maior polaridade
+
+top5negativas = order_polaridade.tail(5) # top 5 com as mais negativas
+
+df_palvras_posi_polari = df_frequencia_palavra_polari(top5)
+
+df_palvras_nega_polari = df_frequencia_palavra_polari(top5negativas)
+
 # GRAFICOS
 
-# fig_palvras_posi_polari = px.scatter(df_freq, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
-#                  title="Dispersão da Quantidade de Palavras Repetidas em Cada Música",
-#                  labels={"quanti": "Quantidade de Palavras Repetidas", "palavra": "Palavra", "titulo": "Título da Música"},
-#                  height=400)
+fig_palvras_posi_polari = px.scatter(df_palvras_posi_polari, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
+                 title="Palavras mais repetias nas musicas com maior polaridade",
+                 labels={"quanti": "Quantidade de Palavras Repetidas", "palavra": "Palavra", "titulo": "Título da Música"},
+                 height=400)
+# Adicionar fundo verde
+fig_palvras_posi_polari.update_layout(
+    plot_bgcolor='rgb(200, 255, 200)',  
+    paper_bgcolor='rgb(200, 255, 200)' 
+)
+
+
+fig_palvras_nega_polari = px.scatter(df_palvras_nega_polari, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
+                 title="Palavras mais repetias nas musicas com menor polaridade",
+                 labels={"quanti": "Quantidade de Palavras Repetidas", "palavra": "Palavra", "titulo": "Título da Música"},
+                 height=400)
+
+fig_palvras_nega_polari.update_layout(
+    plot_bgcolor='rgb(255, 200, 200)',  
+    paper_bgcolor='rgb(255, 200, 200)' 
+)
 
 
 fig_quant_palav = px.scatter(df_freq, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
@@ -58,6 +87,14 @@ hist_quant_pal = px.bar(
     x=top10_palavras.index,  
     y='quant',              
     labels={'x': 'Palavra', 'quant': 'Quantidade'},
+    title='Top 10'
+)
+
+hist_top10_polaridade = px.bar(
+    top10_polaridade,
+    x=top10_polaridade.index,  
+    y='polarity',              
+    labels={'x': 'estilo', 'polarity': 'polaridade'},
     title='Top 10'
 )
 
@@ -203,6 +240,24 @@ app.layout = html.Div([
                     figure={}
                 ),
         html.Hr(),
+            html.H3(children='As 10 palavras com maior polaridade e seus estilos'),
+        dcc.Graph(
+            id="top10-maior-polaridade",
+            figure=hist_top10_polaridade
+        ),
+         html.Hr(),
+            html.H3(children='As 5 palavras mais repetidas nas músicas com MAIOR polaridade'),
+        dcc.Graph(
+            id="top5-maior-polaridade",
+            figure=fig_palvras_posi_polari
+        ),
+         html.Hr(),
+            html.H3(children='As 5 palavras mais repetidas nas músicas com MENOR polaridade'),
+        dcc.Graph(
+            id="top5-menor-polaridade",
+            figure=fig_palvras_nega_polari
+        ),
+        html.Hr(),
             html.H2(children='As 6 palavras mais repetidas em cada música'),
         dcc.Graph(
             id="grafico-radar",
@@ -266,7 +321,7 @@ def exib_parte1(parte):
         yaxis_title='Polaridade',
         showlegend=False, 
         xaxis=dict(
-        tickangle=90,
+        tickangle=45,
          )
         )
 
@@ -279,7 +334,7 @@ def exib_parte1(parte):
         yaxis_title='Polaridade',
         showlegend=False, 
         xaxis=dict(
-        tickangle=90,
+        tickangle=45,
          )
         )
         return fig

@@ -54,7 +54,8 @@ def get_polarity():
         data = {
             "titulo": [],
             "estilo": [],
-            "polarity": []
+            "polarity": [],
+            "letra": []
         }
 
        
@@ -72,6 +73,7 @@ def get_polarity():
             polaridade = analise.sentiment.polarity
             data['polarity'].append(polaridade) # guardar a polaridade
             data["estilo"].append(df_letras_en["estilo"][l])
+            data["letra"].append(df_letras_en["letra"][l])
 
             # data['phrase'].append(phrase[i][0]) # guardar a frase
 
@@ -140,6 +142,45 @@ def df_frequencia_palavra():
     top5 = order.head(6)
 
     return top5
+
+
+
+def df_frequencia_palavra_polari(df_polari):
+    """
+    pegar as palavras mais repetidas das letras com maior ou menor polaridade
+     data = {
+            "titulo": [],
+            "estilo": [],
+            "polarity": [],
+            "letra": []
+        }
+    """
+    palavras = {
+        "palavra": [],
+        "quanti": [],
+        "estilo_titulo": []
+    }
+    for index, row in df_polari.iterrows():
+        p = frequencia_palavra(row["letra"])
+
+         # verificar se alguns dados nao sao uma listas vazia
+        # verificar se a palavra tem pelo menos 4 letras
+        if len(p) > 0 and len(p[0][0]) > 3:
+
+            palavras["palavra"].append(p[0][0])
+            palavras["quanti"].append(p[0][1])
+            titulo = row["titulo"]
+            estilo = row["estilo"]
+
+            tit_est = titulo + " | " + estilo
+
+            palavras["estilo_titulo"].append(tit_est)
+            
+
+    df = pd.DataFrame(palavras)
+
+    return df
+
 
 
 def len_musica():
