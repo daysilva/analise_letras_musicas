@@ -11,8 +11,6 @@ df_freq = df_frequencia_palavra()
 
 df_len_musica = len_musica()
 
-
-
 df_quant_palavras = pd.read_csv('./quant_palavras.csv')
 
 count_pal = df_quant_palavras.pivot_table(
@@ -24,21 +22,24 @@ total_quant_order = count_pal.sort_values(by="quant", ascending=False)
 top10_palavras = total_quant_order.head(10)
 
 
+# order_polaridade = df.sort_values(by='polarity', ascending=False)
+# top5 = order_polaridade.head(5)
 
+# df_palvras_posi_polari = df_frequencia_palavra(top5)
+
+# print(df_palvras_posi_polari)
 # GRAFICOS
 
-# montar um grafico de radar
-fig_radar = px.line_polar(df_freq, r='quanti', theta='palavra', line_close=True)
-fig_radar.update_traces(fill='toself')
-fig_radar.update_layout(
-    polar=dict(
-        radialaxis=dict(
-            visible=True,
-            range=[0, max(df_freq['quanti'])]
-        )
-    ),
-    showlegend=False
-)
+# fig_palvras_posi_polari = px.scatter(df_freq, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
+#                  title="Dispersão da Quantidade de Palavras Repetidas em Cada Música",
+#                  labels={"quanti": "Quantidade de Palavras Repetidas", "palavra": "Palavra", "titulo": "Título da Música"},
+#                  height=400)
+
+
+fig_quant_palav = px.scatter(df_freq, x="estilo_titulo", y="quanti", color="palavra", size="quanti",
+                 title="Dispersão da Quantidade de Palavras Repetidas em Cada Música",
+                 labels={"quanti": "Quantidade de Palavras Repetidas", "palavra": "Palavra", "titulo": "Título da Música"},
+                 height=400)
 
 
 
@@ -67,6 +68,9 @@ hist_quant_pal = px.bar(
 parte1 = df.iloc[:len(df)//2, :]
 parte2 = df.iloc[len(df)//2:, :]
 
+# criar umanoca loluna que mostre o estilo e o titulo em apenas uma string
+parte1['estilo_titulo'] = parte1['estilo'] + ' | ' + parte1['titulo']
+parte2['estilo_titulo'] = parte2['estilo'] + ' | ' + parte2['titulo']
 
 INFO_PROCED = False
 
@@ -139,7 +143,7 @@ app.layout = html.Div([
                         ]),
                           html.Li(
                               style={'margin-top': '10px', 'font-family': "Gill Sans"},
-                            children="Em pagina que contem os links de letras de música, escolhemos uma música aleatoriamente para adicionar ao dataset"),
+                            children="Na pagina que contem os links de letras de música, escolhemos uma música aleatoriamente para adicionar ao dataset"),
                          html.Li(style={'margin-top': '10px', 'font-family': "Gill Sans"}, children="Extraimos o conteudo de cada pagina e salvamos tudo em um arquivo csv"),
                 ])
             ]),
@@ -181,6 +185,11 @@ app.layout = html.Div([
                         html.Li(
                             style={'margin-top': '10px', 'font-family': "Gill Sans"}, 
                             children="Biblioteca TextBlob"),
+                        html.Li(
+                        style={'margin-top': '10px', 'font-family': "Gill Sans"}, 
+                        children="""
+                        A biblioteca TextBlob não oferece suporte para textos em portuges. Então fizemos 
+                        uma cópia do dataser traduzindo as letras para o ingles"""),
                 ])
             ]),
                 # ######
@@ -197,7 +206,7 @@ app.layout = html.Div([
             html.H2(children='As 6 palavras mais repetidas em cada música'),
         dcc.Graph(
             id="grafico-radar",
-            figure=fig_radar
+            figure=fig_quant_palav
         ),
         html.Hr(),
         html.H2(children='Tamanho da letra das musicas em quantidade de caracteres'),
@@ -251,11 +260,28 @@ def exib_info_polari(n_clicks):
 )
 def exib_parte1(parte):
     if parte == "parte1":
-        fig = px.histogram(parte1, x='estilo', y='polarity', histfunc='avg')
+        fig = px.histogram(parte1, x='estilo_titulo', y='polarity', histfunc='avg')
+        fig.update_layout(
+        xaxis_title='Estilo - Título',
+        yaxis_title='Polaridade',
+        showlegend=False, 
+        xaxis=dict(
+        tickangle=90,
+         )
+        )
+
         return fig
     
     elif parte == "parte2":
-        fig = px.histogram(parte2, x='estilo', y='polarity', histfunc='avg')
+        fig = px.histogram(parte2, x='estilo_titulo', y='polarity', histfunc='avg')
+        fig.update_layout(
+        xaxis_title='Estilo - Título',
+        yaxis_title='Polaridade',
+        showlegend=False, 
+        xaxis=dict(
+        tickangle=90,
+         )
+        )
         return fig
 
 

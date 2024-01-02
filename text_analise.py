@@ -9,9 +9,43 @@ import nltk
 nltk.download('punkt')
 nltk.download('stopwords')
 from nltk.corpus import stopwords
+from googletrans import Translator
 
 df_letras = pd.read_csv('./letras.csv')
 
+df_letras_en = pd.read_csv('./letras_en.csv')
+
+
+
+def translate_text(text, target_language='en'):
+    translator = Translator()
+    translated_text = translator.translate(text, dest=target_language)
+    return translated_text.text
+
+
+def letra_en():
+    """
+    Fazer uma cópia do dataset para o inglês - apenas as letras das músicas
+    """
+    letras_en = {
+        "titulo": [],
+        "estilo": [],
+        "letra": []
+    }
+
+    for l in range(0, len(df_letras["titulo"])):
+        if len(df_letras["letra"][l]) > 10:
+            letras_en["titulo"].append(df_letras["titulo"][l])
+            letras_en["estilo"].append(df_letras["estilo"][l])
+
+            letra_pt = df_letras["letra"][l]
+            letra_ingles = translate_text(letra_pt)
+            letras_en["letra"].append(letra_ingles)
+        else:
+            print("Dado faltante")
+
+    df = pd.DataFrame(letras_en)
+    df.to_csv('letras_en.csv', index=False)
 
 
 def get_polarity():
@@ -24,20 +58,20 @@ def get_polarity():
         }
 
        
-        for l in range(0, len(df_letras["titulo"])):
+        for l in range(0, len(df_letras_en["titulo"])):
           
-            data["titulo"].append(df_letras["titulo"][l]) # guardar apenas o titulo na coluna do dataframe
+            data["titulo"].append(df_letras_en["titulo"][l]) # guardar apenas o titulo na coluna do dataframe
 
-            # text_analize = df_letras["letra"][l].replace("[", "").replace("]", "")
+            # text_analize = df_letras_en["letra"][l].replace("[", "").replace("]", "")
             # text_split = text_analize[0: len(text_analize) // 2]
 
             
                 
-            analise = TextBlob(df_letras["letra"][l])
+            analise = TextBlob(df_letras_en["letra"][l])
 
             polaridade = analise.sentiment.polarity
             data['polarity'].append(polaridade) # guardar a polaridade
-            data["estilo"].append(df_letras["estilo"][l])
+            data["estilo"].append(df_letras_en["estilo"][l])
 
             # data['phrase'].append(phrase[i][0]) # guardar a frase
 
@@ -79,11 +113,12 @@ def df_frequencia_palavra():
 
     palavras = {
         "palavra": [],
-        "quanti": []
+        "quanti": [],
+        "estilo_titulo": []
     }
 
-    for c in df_letras["letra"]:
-        p = frequencia_palavra(c)
+    for l in range(0, len(df_letras["letra"])):
+        p = frequencia_palavra(df_letras["letra"][l])
 
         # vwrificar se alguns dados nao sao uma listas vazia
         # verificar se a palavra tem pelo menos 4 letras
@@ -91,6 +126,12 @@ def df_frequencia_palavra():
 
             palavras["palavra"].append(p[0][0])
             palavras["quanti"].append(p[0][1])
+            titulo = df_letras["titulo"][l]
+            estilo = df_letras["estilo"][l]
+
+            tit_est = titulo + " | " + estilo
+
+            palavras["estilo_titulo"].append(tit_est)
     
 
     df = pd.DataFrame(palavras)
@@ -211,3 +252,5 @@ def count_palavras():
 # top10_palavras = total_quant_order.head(15)
 
 # print(top10_palavras)
+    
+# letra_en()
