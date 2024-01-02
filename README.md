@@ -6,7 +6,7 @@
 - sudo apt-get install python3-venv
 - python3 -m venv analise_text
 - source analise_text/bin/activate
-- pip install googletrans==4.0.0-rc1
+- pip install -r requirements.txt
 - python3 main.py
 - Acesse o link em seu navegador para ver os dashboards dessa análise
 
